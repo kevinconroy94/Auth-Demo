@@ -21,4 +21,12 @@ userSchema.statics.findAndValidate = async function (username, password) {
     return isValid? foundUser: false;
 }
 
+// middleware to hash password
+userSchema.pre('save', async function(next) {
+    // only want to rehash password if changed
+    if (!this.isModified('password')) return next();
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+});
+
 module.exports = mongoose.model('User', userSchema);
